@@ -318,6 +318,7 @@ void dump_syscheck_entry(syscheck_config *syscheck, char *entry, int vals, int r
         }
 
         if (restrictfile) {
+            OSMatch_FreePattern(syscheck->registry[pl].filerestrict);
             os_calloc(1, sizeof(OSMatch), syscheck->registry[pl].filerestrict);
             if (!OSMatch_Compile(restrictfile, syscheck->registry[pl].filerestrict, 0)) {
                 OSMatch *ptm;
@@ -1635,7 +1636,6 @@ int Read_Syscheck(const OS_XML *xml, XML_NODE node, void *configp, __attribute__
                     } else if (strcmp(node[i]->attributes[j], xml_restrict) == 0) {
                         os_free(restrictfile);
                         os_strdup(node[i]->values[j], restrictfile);
-                        str_lowercase(restrictfile);
                     } else {
                         merror(XML_INVATTR, node[i]->attributes[j], node[i]->content);
                         os_free(tag);
@@ -2285,7 +2285,7 @@ void Free_Syscheck(syscheck_config * config) {
                     free(config->registry[i].tag);
                 }
                 if (config->registry[i].filerestrict) {
-                    free(config->registry[i].filerestrict);
+                    OSMatch_FreePattern(config->registry[i].filerestrict);
                 }
             }
             free(config->registry);
